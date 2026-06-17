@@ -13,7 +13,7 @@ def clamp_force(pressure, piston_area):
     return pressure * piston_area
 
 def brake_torque(clamp_force, rotor_radius, mu):
-    return 2 * clamp_force * rotor_radius * mu
+    return clamp_force * rotor_radius * mu
 
 def wheel_force(brake_torque, tire_radius):
     return brake_torque / tire_radius
