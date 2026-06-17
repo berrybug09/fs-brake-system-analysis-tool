@@ -1,10 +1,16 @@
+# Brake System Analysis Tool - Changelog
+
+All notable changes to this project will be documented in this file.
+
+---
+
 ## Version 2.1.0 - User Interface and Visualization Update
 
 Date: 16 June 2026
 
 ### Overview
 
-SLightly more updated and debugged user interface update introducing 'tabs' to separate engineering calculations from graphs/charts. The software interface has been redesigned for improved usability, clearer presentation of results(earlier the readability was poor), and a more professional engineering software appearance while retaining all analytical capabilities introduced in Version 2.0.0.
+Much more updated and debugged user interface update introducing 'tabs' to separate engineering calculations from graphs/charts. The software interface has been redesigned for improved usability, clearer presentation of results(earlier the readability was poor), and a more professional engineering software appearance while retaining all analytical capabilities introduced in Version 2.0.0.
 
 ### Features Added
 
@@ -100,3 +106,23 @@ None
 * Brake bias plots
 * Pedal force vs deceleration graphs
 * Design optimization dashboard
+
+---
+
+## Older Updates
+
+### V1.0.0
+Date: 04 June 2026
+First functional version of the Brake System Analysis Tool developed for Formula Student brake system calculations.
+
+### V1.1.0
+Date: 05 June 2026
+Major update introducing multi-piston caliper support, enhanced brake system modeling, improved GUI organization, and tire lock-up prediction capabilities.
+
+### V1.2.0
+Date: 06 June 2026
+Introduced brake bias optimization capabilities, tire utilization analysis, and automated setup recommendations to improve Formula Student brake system tuning and validation.
+
+### V2.0.0
+Complete architecture overhaul from python only tkinter to React+FastAPI based web application. 
+
