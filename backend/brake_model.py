@@ -6,26 +6,20 @@ G = 9.81
 def circle_area(diameter):
     return math.pi * (diameter / 2) ** 2
 
-
 def line_pressure(force, area):
     return force / area
-
 
 def clamp_force(pressure, piston_area):
     return pressure * piston_area
 
-
 def brake_torque(clamp_force, rotor_radius, mu):
-    return clamp_force * rotor_radius * mu
-
+    return 2 * clamp_force * rotor_radius * mu
 
 def wheel_force(brake_torque, tire_radius):
     return brake_torque / tire_radius
 
-
 def vehicle_deceleration(force, mass):
     return force / mass
-
 
 def weight_transfer(mass, deceleration, cg_height, wheelbase):
     return (mass * deceleration * cg_height) / wheelbase
@@ -40,7 +34,20 @@ def utilization_warning(utilization):
 
 
 #Calculations
-def brake_analysis(data):
+def brake_bias_recommendation(front_bias, ideal_front_bias):
+
+    bias_error = front_bias - ideal_front_bias
+
+    if bias_error < -3:
+        recommendation = "Increase Front Brake Bias"
+    elif bias_error > 3:
+        recommendation = "Reduce Front Brake Bias"
+    else:
+        recommendation = "Bias Near Optimal"
+
+    return bias_error, recommendation
+
+def hydraulic_analysis(data):
 
     front_mc_area = circle_area(data["front_mc_diameter"])
     rear_mc_area = circle_area(data["rear_mc_diameter"])
@@ -62,10 +69,20 @@ def brake_analysis(data):
     front_torque = brake_torque(front_clamp, data["front_rotor_radius"], data["front_pad_mu"])
     rear_torque = brake_torque(rear_clamp, data["rear_rotor_radius"], data["rear_pad_mu"])
 
-    total_torque = front_torque + rear_torque
+    return {
+        "pushrod_force": pushrod_force,
 
-    front_bias = (front_torque / total_torque * 100)
-    rear_bias = 100 - front_bias
+        "front_pressure": front_pressure,
+        "rear_pressure": rear_pressure,
+
+        "front_clamp_force": front_clamp,
+        "rear_clamp_force": rear_clamp,
+
+        "front_brake_torque": front_torque,
+        "rear_brake_torque": rear_torque,
+    }
+
+def vehicle_dynamics_analysis(data, front_torque, rear_torque):
 
     front_wheel_force = wheel_force(front_torque, data["front_tire_radius"])
     rear_wheel_force = wheel_force(rear_torque, data["rear_tire_radius"])
@@ -86,15 +103,16 @@ def brake_analysis(data):
     dynamic_front_load = (front_static_load + dynamic_transfer)
     dynamic_rear_load = (rear_static_load - dynamic_transfer)
 
-    ideal_front_bias = (dynamic_front_load / (dynamic_front_load + dynamic_rear_load) * 100)
-    bias_error = (front_bias - ideal_front_bias)
+    return {
+        "front_wheel_force": front_wheel_force,
+        "rear_wheel_force": rear_wheel_force,
+        "deceleration_g": deceleration_g,
+        "weight_transfer": dynamic_transfer,
+        "dynamic_front_load": dynamic_front_load,
+        "dynamic_rear_load": dynamic_rear_load,
+    }
 
-    if bias_error < -3:
-        recommendation = "Increase Front Brake Bias"
-    elif bias_error > 3:
-        recommendation = "Reduce Front Brake Bias"
-    else:
-        recommendation = "Bias Near Optimal"    
+def tire_analysis(data, front_wheel_force, rear_wheel_force, dynamic_front_load, dynamic_rear_load):
 
     front_available_grip = (data["tire_mu"] * dynamic_front_load)
     rear_available_grip = (data["tire_mu"] * dynamic_rear_load)
@@ -104,9 +122,69 @@ def brake_analysis(data):
 
     front_utilization = (front_required_force / front_available_grip * 100)
     rear_utilization = (rear_required_force / rear_available_grip * 100)
-        
+
     front_warning = utilization_warning(front_utilization)
     rear_warning = utilization_warning(rear_utilization)
+
+    return {
+        "front_available_grip": front_available_grip,
+        "rear_available_grip": rear_available_grip,
+
+        "front_required_force": front_required_force,
+        "rear_required_force": rear_required_force,
+
+        "front_utilization": front_utilization,
+        "rear_utilization": rear_utilization,
+
+        "front_warning": front_warning,
+        "rear_warning": rear_warning,
+
+        "front_lockup":
+            "YES"
+            if front_required_force > front_available_grip
+            else "NO",
+
+        "rear_lockup":
+            "YES"
+            if rear_required_force > rear_available_grip
+            else "NO",
+    }
+
+def brake_analysis(data):
+    hydraulic = hydraulic_analysis(data)
+    pushrod_force = hydraulic["pushrod_force"]
+    front_pressure = hydraulic["front_pressure"]
+    rear_pressure = hydraulic["rear_pressure"]
+    front_clamp = hydraulic["front_clamp_force"]
+    rear_clamp = hydraulic["rear_clamp_force"]
+    front_torque = hydraulic["front_brake_torque"]
+    rear_torque = hydraulic["rear_brake_torque"]
+    total_torque = front_torque + rear_torque
+    front_bias = (front_torque / total_torque * 100)
+    rear_bias = 100 - front_bias
+
+    dynamics = vehicle_dynamics_analysis(data, front_torque, rear_torque)
+    front_wheel_force = dynamics["front_wheel_force"]
+    rear_wheel_force = dynamics["rear_wheel_force"]
+    deceleration_g = dynamics["deceleration_g"]
+    dynamic_transfer = dynamics["weight_transfer"]
+    dynamic_front_load = dynamics["dynamic_front_load"]
+    dynamic_rear_load = dynamics["dynamic_rear_load"]
+
+    ideal_front_bias = (dynamic_front_load / (dynamic_front_load + dynamic_rear_load) * 100)
+    bias_error, recommendation = brake_bias_recommendation(front_bias, ideal_front_bias)   
+
+    tire = tire_analysis(data, front_wheel_force, rear_wheel_force, dynamic_front_load, dynamic_rear_load)
+    front_available_grip = tire["front_available_grip"]
+    rear_available_grip = tire["rear_available_grip"]
+    front_required_force = tire["front_required_force"]
+    rear_required_force = tire["rear_required_force"]
+    front_utilization = tire["front_utilization"]
+    rear_utilization = tire["rear_utilization"]
+    front_warning = tire["front_warning"]
+    rear_warning = tire["rear_warning"]
+    front_lockup = tire["front_lockup"]
+    rear_lockup = tire["rear_lockup"]
 
     return {
         "pushrod_force": pushrod_force,
@@ -138,8 +216,8 @@ def brake_analysis(data):
         "front_warning": front_warning,
         "rear_warning": rear_warning,
 
-        "front_lockup": "YES" if front_required_force > front_available_grip else "NO",
-        "rear_lockup": "YES" if rear_required_force > rear_available_grip else "NO",
+        "front_lockup": front_lockup,
+        "rear_lockup": rear_lockup,
 
         "dynamic_front_load": dynamic_front_load,
         "dynamic_rear_load": dynamic_rear_load,

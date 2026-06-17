@@ -3,7 +3,7 @@ import axios from "axios";
 import "./App.css";
 
 function App() {
-  const [message, setMessage] = useState("Loading...");
+  const [activeTab, setActiveTab] = useState("analysis");
 
   const [inputs, setInputs] = useState({
     pedal_force: "",
@@ -36,18 +36,6 @@ function App() {
       [e.target.name]: e.target.value,
     });
   }
-
-  useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/")
-      .then((response) => {
-        setMessage(response.data.message);
-      })
-      .catch((error) => {
-        console.error(error);
-        setMessage("Failed to connect to backend");
-      });
-  }, []);
 
   async function calculate() {
     try {
@@ -102,107 +90,314 @@ function App() {
   ];
 
   return (
-    <div className="app-container">
-      <h1>Formula Student Brake System Analysis Tool</h1>
+  <div className="app-container">
 
-      <div className="input-grid">
-        {columns.map((column, colIndex) => (
-          <div key={colIndex} className="column">
-            {column.map((field) => (
-              <div key={field.name} className="input-row">
-                <label>{field.label}</label>
+    <h1>Formula Student Brake System Analysis Tool</h1>
 
-                <input
-                  type="number"
-                  name={field.name}
-                  value={inputs[field.name]}
-                  onChange={handleChange}
-                />
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-
-      <button className="calculate-btn" onClick={calculate}>
-        Calculate
+    {/* Tabs always visible */}
+    <div className="tab-bar">
+      <button
+        className={activeTab === "analysis" ? "tab active" : "tab"}
+        onClick={() => setActiveTab("analysis")}
+      >
+        Analysis
       </button>
 
-      {result && (
-        <div className="results-box">
-          <div className="results-header">
-            <span>Hydraulic and Braking Results</span>
-            <span>Vehicle and Lock-Up Results</span>
-          </div>
-
-          <div className="results-content">
-
-            <div>
-
-              <p>Pushrod Force: {result.pushrod_force.toFixed(2)} N</p>
-
-              <p>Front Pressure: {result.front_pressure.toFixed(2)} N/mm²</p>
-              <p>Rear Pressure: {result.rear_pressure.toFixed(2)} N/mm²</p>
-
-              <p>Front Clamp Force: {result.front_clamp_force.toFixed(2)} N</p>
-              <p>Rear Clamp Force: {result.rear_clamp_force.toFixed(2)} N</p>
-
-              <p>Front Brake Torque: {result.front_brake_torque.toFixed(2)} Nmm</p>
-              <p>Rear Brake Torque: {result.rear_brake_torque.toFixed(2)} Nmm</p>
-
-              <p>Front Bias: {result.front_bias.toFixed(2)} %</p>
-              <p>Rear Bias: {result.rear_bias.toFixed(2)} %</p>
-
-            </div>
-
-            <div>
-
-              <p>Deceleration: {result.deceleration_g.toFixed(2)} g</p>
-
-              <p>Weight Transfer: {result.weight_transfer.toFixed(2)} N</p>
-
-              <p>Dynamic Front Load: {result.dynamic_front_load.toFixed(2)} N</p>
-              <p>Dynamic Rear Load: {result.dynamic_rear_load.toFixed(2)} N</p>
-
-              <p>Front Available Grip: {result.front_available_grip.toFixed(2)} N</p>
-              <p>Rear Available Grip: {result.rear_available_grip.toFixed(2)} N</p>
-
-              <p>Front Required Force: {result.front_required_force.toFixed(2)} N</p>
-              <p>Rear Required Force: {result.rear_required_force.toFixed(2)} N</p>
-
-              <p>
-                Front Tire Utilization:
-                {" "}
-                {result.front_utilization.toFixed(1)}%
-                {" "}
-                ({result.front_warning})
-              </p>
-
-              <p>
-                Rear Tire Utilization:
-                {" "}
-                {result.rear_utilization.toFixed(1)}%
-                {" "}
-                ({result.rear_warning})
-              </p>
-
-              <p>Ideal Front Bias: {result.ideal_front_bias.toFixed(2)} %</p>
-
-              <p>Bias Error: {result.bias_error.toFixed(2)} %</p>
-
-              <p>Recommendation: {result.recommendation}</p>
-
-              <p>Front Lock-Up Risk: {result.front_lockup}</p>
-
-              <p>Rear Lock-Up Risk: {result.rear_lockup}</p>
-
-            </div>
-
-          </div>
-        </div>
-      )}
+      <button
+        className={activeTab === "charts" ? "tab active" : "tab"}
+        onClick={() => setActiveTab("charts")}
+      >
+        Charts
+      </button>
     </div>
-  );
+
+    {activeTab === "analysis" && (
+      <>
+        <div className="input-grid">
+          {columns.map((column, colIndex) => (
+            <div key={colIndex} className="column">
+              {column.map((field) => (
+                <div key={field.name} className="input-row">
+                  <label>{field.label}</label>
+
+                  <input
+                    type="number"
+                    name={field.name}
+                    value={inputs[field.name]}
+                    onChange={handleChange}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        <button
+          className="calculate-btn"
+          onClick={calculate}
+        >
+          Calculate
+        </button>
+
+        {result && (
+          <div className="results-box">
+
+            <div className="results-header">
+              <span>Hydraulic and Braking Results</span>
+              <span>Vehicle and Lock-Up Results</span>
+            </div>
+
+            <div className="results-content">
+
+              {/* LEFT COLUMN */}
+              <div>
+
+                <div className="result-row">
+                  <span>Pushrod Force</span>
+                  <strong>{result.pushrod_force?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Front Pressure</span>
+                  <strong>{result.front_pressure?.toFixed(2)} N/mm²</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Pressure</span>
+                  <strong>{result.rear_pressure?.toFixed(2)} N/mm²</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Front Clamp Force</span>
+                  <strong>{result.front_clamp_force?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Clamp Force</span>
+                  <strong>{result.rear_clamp_force?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Front Brake Torque</span>
+                  <strong>{result.front_brake_torque?.toFixed(2)} N·m</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Brake Torque</span>
+                  <strong>{result.rear_brake_torque?.toFixed(2)} N·m</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Front Bias</span>
+                  <strong>{result.front_bias?.toFixed(2)} %</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Bias</span>
+                  <strong>{result.rear_bias?.toFixed(2)} %</strong>
+                </div>
+
+              </div>
+
+              {/* RIGHT COLUMN */}
+              <div>
+
+                <div className="result-row">
+                  <span>Deceleration</span>
+                  <strong>{result.deceleration_g?.toFixed(2)} g</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Weight Transfer</span>
+                  <strong>{result.weight_transfer?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Dynamic Front Load</span>
+                  <strong>{result.dynamic_front_load?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Dynamic Rear Load</span>
+                  <strong>{result.dynamic_rear_load?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Front Available Grip</span>
+                  <strong>{result.front_available_grip?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Available Grip</span>
+                  <strong>{result.rear_available_grip?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Front Required Force</span>
+                  <strong>{result.front_required_force?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Required Force</span>
+                  <strong>{result.rear_required_force?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Front Tire Utilization</span>
+                  <strong>
+                    {result.front_utilization?.toFixed(2)} %
+                    {" "}
+                    ({result.front_warning})
+                  </strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Tire Utilization</span>
+                  <strong>
+                    {result.rear_utilization?.toFixed(2)} %
+                    {" "}
+                    ({result.rear_warning})
+                  </strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Ideal Front Bias</span>
+                  <strong>{result.ideal_front_bias?.toFixed(2)} %</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Bias Error</span>
+                  <strong>{result.bias_error?.toFixed(2)} %</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Recommendation</span>
+                  <strong>{result.recommendation}</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Front Lock-Up Risk</span>
+                  <strong>{result.front_lockup}</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Lock-Up Risk</span>
+                  <strong>{result.rear_lockup}</strong>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+      </>
+    )}
+
+    {activeTab === "charts" && (
+      <div className="chart-grid">
+
+        {!result ? (
+          <div className="results-box">
+            <p>Run a calculation first.</p>
+          </div>
+        ) : (
+          <>
+            <div className="chart-panel">
+
+              <h3>Brake Bias Analysis</h3>
+
+              <p>
+                Actual Bias: {result.front_bias?.toFixed(2)}%
+              </p>
+
+              <p>
+                Ideal Bias: {result.ideal_front_bias?.toFixed(2)}%
+              </p>
+
+              <div className="bias-bar">
+
+                <div
+                  className="bias-marker actual-marker"
+                  style={{
+                    left: `${result.front_bias}%`,
+                  }}
+                />
+
+                <div
+                  className="bias-marker ideal-marker"
+                  style={{
+                    left: `${result.ideal_front_bias}%`,
+                  }}
+                />
+
+              </div>
+
+              <div className="bias-legend">
+                <span className="legend-actual">■ Actual</span>
+                <span className="legend-ideal">■ Ideal</span>
+              </div>
+
+            </div>
+
+            <div className="chart-panel">
+
+              <h3>Tire Utilization</h3>
+
+              <p>
+                Front Tire: {result.front_utilization?.toFixed(1)}%
+              </p>
+
+              <div className="util-bar">
+                <div
+                  className={
+                    result.front_utilization > 100
+                      ? "util-fill util-critical"
+                      : result.front_utilization > 95
+                      ? "util-fill util-warning"
+                      : "util-fill util-normal"
+                  }
+                  style={{
+                    width: `${Math.min(result.front_utilization, 100)}%`,
+                  }}
+                />
+              </div>
+
+              <p>
+                Rear Tire: {result.rear_utilization?.toFixed(1)}%
+              </p>
+
+              <div className="util-bar">
+                <div
+                  className={
+                    result.rear_utilization > 100
+                      ? "util-fill util-critical"
+                      : result.rear_utilization > 95
+                      ? "util-fill util-warning"
+                      : "util-fill util-normal"
+                  }
+                  style={{
+                    width: `${Math.min(result.rear_utilization, 100)}%`,
+                  }}
+                />
+              </div>
+
+              <div className="util-legend">
+                <span className="legend-normal">■ Safe (&lt;95%)</span>
+                <span className="legend-warning">■ High (95–100%)</span>
+                <span className="legend-critical">■ Lock-Up Risk (&gt;100%)</span>
+              </div>
+
+            </div>
+          </>
+        )}
+
+      </div>
+    )}
+
+  </div>
+);
+
 }
 
 export default App;
