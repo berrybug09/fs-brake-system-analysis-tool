@@ -1,20 +1,23 @@
-## Version 2.0.0 - React and FastAPI Migration Update
+## Version 2.1.0 - User Interface and Visualization Update
 
-Date: 12 June 2026
+Date: 16 June 2026
 
 ### Overview
 
-Major software architecture update migrating the Brake System Analysis Tool from a Tkinter-based desktop application to a React frontend and FastAPI backend architecture while retaining all calculation capabilities introduced in Version 1.2.0.
+SLightly more updated and debugged user interface update introducing 'tabs' to separate engineering calculations from graphs/charts. The software interface has been redesigned for improved usability, clearer presentation of results(earlier the readability was poor), and a more professional engineering software appearance while retaining all analytical capabilities introduced in Version 2.0.0.
 
 ### Features Added
 
-* React frontend implementation
-* FastAPI backend implementation
-* REST API communication
-* Axios integration
-* Browser-based user interface
-* Multi-column engineering input layout
-* Improved project structure
+* Dedicated Analysis tab
+* Dedicated Charts tab
+* Brake Bias Analysis visualization
+* Tire Utilization visualization
+* Interactive tab navigation
+* Engineering-style desktop software interface
+* Improved results presentation
+* Improved chart layout
+* Visual brake bias comparison indicators
+* Visual tire utilization indicators
 
 ### Inputs Added
 
@@ -22,17 +25,21 @@ None
 
 ### Outputs Added
 
-None
+* Brake Bias Analysis chart
+* Tire Utilization chart
+* Visual Actual vs Ideal Bias comparison
+* Tire utilization severity visualization
 
 ### Improvements
 
-* Improved software scalability
-* Improved maintainability
-* Improved code organization
-* Easier future feature development
-* Improved user interface flexibility
-* Better separation between calculations and presentation layers
-* Modern web-based architecture
+* Improved user experience
+* Improved information organization
+* Improved readability of engineering results
+* Improved chart accessibility
+* Better separation between calculations and visualizations
+* More professional engineering software appearance
+* Improved navigation workflow
+* Improved results interpretation
 
 ### Features Retained
 
@@ -47,20 +54,23 @@ None
 * Clamp force calculations
 * Brake torque calculations
 * Brake bias calculations
+* React frontend architecture
+* FastAPI backend architecture
+* REST API communication
 
 ### Remaining Limitations
 
 * No aerodynamic effects
 * No speed-dependent vehicle dynamics
 * No thermal analysis
-* No graphical visualizations
+* Limited graphical visualizations
 * No rear wheel lift detection
 * No brake efficiency calculations
 * Assumes equal piston diameters within each caliper
 
 ---
 
-## Planned Version 2.1.0
+## Planned Version 2.5.0
 
 ### Target Features
 

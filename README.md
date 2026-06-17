@@ -1,4 +1,4 @@
-# Formula Student Brake System Analysis Tool [V2.0.0]
+# Formula Student Brake System Analysis Tool [V2.1.0]
 
 A brake system analysis tool developed for Formula Student vehicles using React, FastAPI, and Python.
 
@@ -178,14 +178,13 @@ As more advanced modelling features are added, the accuracy and scope of the ana
 
 ## Future Plans
 
-The long-term goal is to turn this into a more complete brake system design and validation platform.
+I plan to turn it into a more complete brake system design and validation platform.
 
-That includes:
-
+That includes features like:
 * More advanced vehicle dynamics models
 * Brake thermal analysis
 * Data visualization tools
 * Setup optimization features
 * Additional engineering validation checks
 
-There's still a lot left to build, but that's part of the fun.
+Also, more UI/UX updates will be on the way since this layout and design is not finalised. I am trying to make it look like old tuning softwares(I find them very cool :P) and as more inputs/parameters get added, the layout and design will keep changing.
