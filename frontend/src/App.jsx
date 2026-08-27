@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import axios from "axios";
 import "./App.css";
+import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine} from "recharts";
 
 function App() {
   const [activeTab, setActiveTab] = useState("analysis");
@@ -62,6 +63,7 @@ function App() {
       { name: "front_piston_count", label: "Front Piston Count" },
       { name: "front_rotor_radius", label: "Front Rotor Radius (mm)" },
       { name: "front_tire_radius", label: "Front Tire Radius (mm)" },
+      
     ],
 
     [
@@ -70,6 +72,7 @@ function App() {
       { name: "rear_piston_count", label: "Rear Piston Count" },
       { name: "rear_rotor_radius", label: "Rear Rotor Radius (mm)" },
       { name: "rear_tire_radius", label: "Rear Tire Radius (mm)" },
+      
     ],
 
     [
@@ -144,12 +147,13 @@ function App() {
 
             <div className="results-header">
               <span>Hydraulic and Braking Results</span>
-              <span>Vehicle and Lock-Up Results</span>
+              <span>Vehicle Dynamics Results</span>
+              <span> Tire Performance Analysis</span>
             </div>
 
             <div className="results-content">
 
-              {/* LEFT COLUMN */}
+              {/* Hydraulics */}
               <div>
 
                 <div className="result-row">
@@ -179,12 +183,12 @@ function App() {
 
                 <div className="result-row">
                   <span>Front Brake Torque</span>
-                  <strong>{result.front_brake_torque?.toFixed(2)} N·m</strong>
+                  <strong>{(result.front_brake_torque/1000)?.toFixed(2)} N·m</strong>
                 </div>
 
                 <div className="result-row">
                   <span>Rear Brake Torque</span>
-                  <strong>{result.rear_brake_torque?.toFixed(2)} N·m</strong>
+                  <strong>{(result.rear_brake_torque/1000)?.toFixed(2)} N·m</strong>
                 </div>
 
                 <div className="result-row">
@@ -199,7 +203,7 @@ function App() {
 
               </div>
 
-              {/* RIGHT COLUMN */}
+              {/* Vehicle Dynamics */}
               <div>
 
                 <div className="result-row">
@@ -223,6 +227,50 @@ function App() {
                 </div>
 
                 <div className="result-row">
+                  <span>Rear Lift</span>
+                  <strong>{result.rear_lift}</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Ideal Front Bias</span>
+                  <strong>{result.ideal_front_bias?.toFixed(2)} %</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Bias Error</span>
+                  <strong>{result.bias_error?.toFixed(2)} %</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Recommendation</span>
+                  <strong>{result.recommendation}</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Recommended Balance Bar</span>
+                  <strong>{result.rec_front_balance?.toFixed(2)} %</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Front Lock-Up Risk</span>
+                  <strong className={result.front_lockup === "YES"?"warning-text":""}>
+                    {result.front_lockup}
+                  </strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Lock-Up Risk</span>
+                  <strong className={result.rear_lockup === "YES"?"warning-text":""}>
+                    {result.rear_lockup}
+                  </strong>
+                </div>
+
+              </div>
+
+              {/* Tire Analysis */}
+              <div>
+
+                <div className="result-row">
                   <span>Front Available Grip</span>
                   <strong>{result.front_available_grip?.toFixed(2)} N</strong>
                 </div>
@@ -243,6 +291,16 @@ function App() {
                 </div>
 
                 <div className="result-row">
+                  <span>Front Grip Margin</span>
+                  <strong>{result.front_grip_margin?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
+                  <span>Rear Grip Margin</span>
+                  <strong>{result.rear_grip_margin?.toFixed(2)} N</strong>
+                </div>
+
+                <div className="result-row">
                   <span>Front Tire Utilization</span>
                   <strong>
                     {result.front_utilization?.toFixed(2)} %
@@ -259,31 +317,7 @@ function App() {
                     ({result.rear_warning})
                   </strong>
                 </div>
-
-                <div className="result-row">
-                  <span>Ideal Front Bias</span>
-                  <strong>{result.ideal_front_bias?.toFixed(2)} %</strong>
-                </div>
-
-                <div className="result-row">
-                  <span>Bias Error</span>
-                  <strong>{result.bias_error?.toFixed(2)} %</strong>
-                </div>
-
-                <div className="result-row">
-                  <span>Recommendation</span>
-                  <strong>{result.recommendation}</strong>
-                </div>
-
-                <div className="result-row">
-                  <span>Front Lock-Up Risk</span>
-                  <strong>{result.front_lockup}</strong>
-                </div>
-
-                <div className="result-row">
-                  <span>Rear Lock-Up Risk</span>
-                  <strong>{result.rear_lockup}</strong>
-                </div>
+                
 
               </div>
 
@@ -320,14 +354,14 @@ function App() {
                 <div
                   className="bias-marker actual-marker"
                   style={{
-                    left: `${result.front_bias}%`,
+                    left: `${Math.max(0,Math.min(result.front_bias, 100))}%`,
                   }}
                 />
 
                 <div
                   className="bias-marker ideal-marker"
                   style={{
-                    left: `${result.ideal_front_bias}%`,
+                    left: `${Math.min(result.ideal_front_bias, 98.5)}%`,
                   }}
                 />
 
@@ -389,15 +423,58 @@ function App() {
               </div>
 
             </div>
-          </>
-        )}
 
+            <div className="chart-panel">
+              <h3>Brake Bias Sensitivity</h3>
+              
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart
+                  data={result.bias_sensitivity}
+                  margin={{top:20, right:30, left:20, bottom:20}}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="balance"
+                    type="number"
+                    domain={[40, 80]}
+                    label={{value: "Brake Balance (%)", position: "insideBottom", offset: -10, fill: "black"}}
+                  />
+
+                  <YAxis
+                    label={{value: "Bias Error (%)", angle: -90, position: "insideLeft", fill: "black"}}
+                  />
+
+                  <Tooltip />
+                  
+                  <ReferenceLine
+                    x={result.rec_front_balance}
+                    stroke="green"
+                    strokeWidth={3}
+                    label={{value: "Recommended", position: "top", fill: "green"}}
+                  />
+
+                  <ReferenceLine
+                    x={65}
+                    stroke="red"
+                    strokeWidth={3}
+                    label={{value: "Current", position: "insideBottom", fill: "red"}}
+                  />
+
+                  <Line
+                    type="monotone"
+                    dataKey="error"
+                    stroke="#2563eb"
+                    strokeWidth={3}
+                    dot={{ r: 5 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+                </>
+        )}
       </div>
     )}
-
   </div>
 );
-
 }
-
 export default App;

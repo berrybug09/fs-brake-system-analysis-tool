@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from brake_model import brake_analysis
-
 from pydantic import BaseModel
+from typing import List, Dict
 
 app = FastAPI()
 
@@ -84,11 +83,20 @@ class BrakeResults(BaseModel):
     dynamic_front_load: float
     dynamic_rear_load: float
 
+    rear_lift: str
+
     front_available_grip: float
     rear_available_grip: float
 
     front_required_force: float
     rear_required_force: float
+
+    front_grip_margin: float
+    rear_grip_margin: float
+
+    bias_sensitivity: List[Dict]
+    rec_front_balance: float | None
+
     
 @app.get("/")
 def home():

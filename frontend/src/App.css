@@ -157,7 +157,7 @@ h1 {
 
 .results-header {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
 
   background: #bfc5cd;
 
@@ -173,7 +173,7 @@ h1 {
 
 .results-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 18px;
 }
 
@@ -207,6 +207,11 @@ h1 {
   font-family: Consolas, "Courier New", monospace;
   font-size: 18px;
   font-weight: 700;
+}
+
+.warning-text {
+    color: #fc0000 !important;
+    font-weight: bold;
 }
 
 /* TABS */
@@ -363,6 +368,7 @@ h1 {
   background: #d7dbe2;
   border: 1px solid #808080;
   padding: 12px;
+  min-height: 300px;
 }
 
 /* CHART PANEL HEADINGS */
